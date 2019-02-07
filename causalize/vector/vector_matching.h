@@ -41,10 +41,15 @@ namespace Causalize {
 		
 	public:
 		VectorMatching(){ };
+		/// @brief Inicialize the Matching algorithm
 		VectorMatching(VectorCausalizationGraph graph, std::list <VectorVertex> &eqDescriptors, std::list <VectorVertex> &uDescriptors)
 			:graph(graph), eqDescriptors(eqDescriptors), uDescriptors(uDescriptors){};
-	  int dfs_matching();
+	  
+		/// @brief Makes a dfs' based matching algorithm of the Graph 
+		int dfs_matching();
+		
 		Option <MDI> DFS (VectorVertex v, MDI mdi);
+		/// @brief The results of the matching algorithm
 		std::map <VectorVertex, MapMDI> getPairE () {return Pair_E;}	
 		std::map <VectorVertex, MapMDI> getPairU () {return Pair_U;}	
 

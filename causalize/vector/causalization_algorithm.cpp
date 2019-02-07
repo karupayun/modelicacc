@@ -104,40 +104,38 @@ CausalizationStrategyVector::CausalizeNto1(const VectorUnknown unk, const Equati
 
 bool
 CausalizationStrategyVector::Causalize() {	
-  while (tarjan){ // El while es para salir si encuentra q no funciona el vectorial
-	VectorMatching m(graph, equationDescriptors, unknownDescriptors);
-	m.dfs_matching();
-	VectorTarjan t(graph, m.getPairE(), m.getPairU());
- 
-  stringstream ss;
-  ss << "graph_tarjan_" << step++ << ".dot";
-  GraphPrinterDirected<TarjanVertexProperty,Label> gp(t.tgraph);
-  gp.printGraph(ss.str());
-	
-	std::list <CausalizeEquations> scc;
-	if(!t.GetConnectedComponent(scc)){
-		// No se puede resolver con Tarjan Vectorial
-		std::cout << "No se puede resolver con Tarjan Vectorial, procederemos con el método escalar" << std::endl;
-		tarjan = false; 
-		vectorial = false; 
-		continue;
-	}
-	for (auto cc : scc){
-		//~ dprint("New");
-		std::vector<CausalizedVar> vars;
-		for (auto vp:cc){
-			CausalizedVar c_var;
-			c_var.unknown = vp.unknown;
-			c_var.equation = vp.equation;
-			c_var.pairs = vp.pairs;
-			vars.push_back(c_var);
-		}
-		tarjan_equations.push_back(vars);
-	}
-	if (debugIsEnabled('c'))
-      PrintCausalizationResult();
-    if (solve) // @karupayun: assert(solve())?
-      SolveEquations2();
+  while (tarjan){ // El while es para proceder con otro método si no funciona el Tarjan vectorial
+			VectorMatching m(graph, equationDescriptors, unknownDescriptors);
+			m.dfs_matching();
+			VectorTarjan t(graph, m.getPairE(), m.getPairU());
+		 
+			stringstream ss;
+			ss << "graph_tarjan_" << step++ << ".dot";
+			GraphPrinterDirected<TarjanVertexProperty,Label> gp(t.tgraph);
+			gp.printGraph(ss.str());
+			
+			std::list <CausalizeEquations> scc;
+			if(!t.GetConnectedComponent(scc)){
+				// When the Tarjan's vectorized version cannot solve the problem
+				std::cout << "No se puede resolver con Tarjan Vectorial, procederemos con el método antiguo sin Tarjan" << std::endl;
+				tarjan = false; 
+				continue;
+			}
+			for (auto cc : scc){
+				std::vector<CausalizedVar> vars;
+				for (auto vp:cc){
+					CausalizedVar c_var;
+					c_var.unknown = vp.unknown;
+					c_var.equation = vp.equation;
+					c_var.pairs = vp.pairs;
+					vars.push_back(c_var);
+				}
+				tarjan_equations.push_back(vars);
+			}
+			if (debugIsEnabled('c'))
+					PrintCausalizationResult();
+			if (solve)
+					SolveEquations();
 			return true;
   }
   int steps = 0;
@@ -151,7 +149,7 @@ CausalizationStrategyVector::Causalize() {
       if (debugIsEnabled('c'))
         PrintCausalizationResult();
       if (solve) 
-        SolveEquations();
+        OldSolveEquations();
       return true;
     }
 
@@ -509,7 +507,7 @@ bool CausalizationStrategyVector::CollisionPairInEdge(IndexPair ip, VectorEdge e
 
 
 
-void CausalizationStrategyVector::SolveEquations2() {
+void CausalizationStrategyVector::SolveEquations() {
   EquationList all;
   std::list<std::string> c_code;
 
@@ -605,7 +603,7 @@ void CausalizationStrategyVector::SolveEquations2() {
 
 
 
-void CausalizationStrategyVector::SolveEquations() {
+void CausalizationStrategyVector::OldSolveEquations() {
   EquationList all;
   std::list<std::string> c_code;
 

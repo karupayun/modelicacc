@@ -143,7 +143,6 @@ private:
     MDI ApplyOffset(Offset) const;
     MDI ApplyUsage(Usage, MDI ran = MDI({})) const;
     MDI RevertUsage(Usage usage, MDI dom = MDI({})) const;
-     // karupayun - Para moverse usando la info de la conexion entre Dom y Ran
     MDI DomToRan(IndexPair ip) const; 
     MDI RanToDom(IndexPair ip) const;              
     bool operator<(const MDI& other) const;
@@ -164,7 +163,6 @@ private:
       inline iterator end() { return intervals.end(); }
 
       IntervalList Partition(Interval iA, Interval iB);
-      //MDI ApplyOffset(Offset offset);
       std::list<MDI> PutHead(Interval i, std::list<MDI> mdiList);
       std::list<MDI> Filter(std::list<MDI> mdiList, MDI mdi);
       std::list<MDI> CartProd(std::list<MDI> mdiList);
@@ -173,7 +171,7 @@ private:
   /*****************************************************************************
    ****************************************************************************/
 	typedef std::list<MDI> MDIL; // //Multi-Dimensional Interval List
-	int sum_size (std::list <MDI> &mdis); // Sumas de los tamaños de los MDI's de la lista
+	int sum_size (std::list <MDI> &mdis); // Sum of all sizes of the list of MDI.
 
   std::ostream& operator<<(std::ostream &os, const std::list<MDI> &mdiList);
   enum IndexPairType{

@@ -28,8 +28,8 @@ class CausalizationStrategyVector{
 		bool Causalize();
 		void PrintCausalizationResult();
 	private:
+		void OldSolveEquations();
 		void SolveEquations();
-		void SolveEquations2();
 		void Causalize1toN(const VectorUnknown unknown, const Equation equation, const IndexPairSet ips);
 		void CausalizeNto1(const VectorUnknown unknown, const Equation equation, const IndexPairSet ips);
     Vertex GetEquation(Edge e);

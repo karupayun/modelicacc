@@ -47,7 +47,7 @@
 
 
 namespace Causalize{
-
+  // ------------ Auxiliar functions to work with lists of MDI instead of having only one ----------------
 	MDIL inter1a1 (MDIL l1, MDIL l2){
 		MDIL rta;
 		assert (l1.size() == l2.size()); 
@@ -55,6 +55,16 @@ namespace Causalize{
 		for (auto m1 : l1){
 			if (m1 & *pm2)
 				rta.push_back ((m1 & *pm2).get());
+		}
+		return rta;
+	}
+	
+	MDIL <MDI> resta (MDIL lmdi, MDI mdi){
+		MDIL rta;
+		for (auto r : lmdi){
+			std::list <MDI> toAdd = r - mdi;
+			for (auto add : toAdd)
+					rta.push_back(add);
 		}
 		return rta;
 	}
@@ -81,17 +91,6 @@ namespace Causalize{
 		return rta;		
 	}
 
-	
-	std::list <MDI> resta (std::list<MDI> lmdi, MDI mdi){
-		std::list<MDI> rta;
-		for (auto r : lmdi){
-			std::list <MDI> toAdd = r - mdi;
-			for (auto add : toAdd)
-					rta.push_back(add);
-		}
-		return rta;
-	}
-	
 	std::list <MDI> DomToRanList (IndexPair ip, std::list <MDI> doms){
 		std::list <MDI> rta;
 		for(auto dom : doms){
@@ -99,13 +98,16 @@ namespace Causalize{
 		}
 		return rta;
 	}
-		
+	// ------------ ---------------------------------------- ----------------
+	
+	/// @brief The function which inicializes the Tarjan Algorithm. It creates the compact graph where the Tarjan Algorithm will work.
+	///  Each Matched Edge of the original Graph is going to be a Vertex in the compact graph and each Unmatched Edge of the original
+	///    graph is going to be a Edge in the new graph.
 	VectorTarjan::VectorTarjan(VectorCausalizationGraph graph, std::map <VectorVertex, MapMDI> Pair_E, std::map <VectorVertex, MapMDI> Pair_U) : graph(graph){
 		int counter = 1, counter2 = 1;
-		for (auto p : Pair_E){
+		for (auto p : Pair_E){ // Creates Vertices of the New Graph
 			VectorVertex v = p.first;
 			for (auto mm : p.second){
-				//~ dprint(graph[v].equation);
 				TarjanVertex tv = add_vertex (tgraph);
 				tgraph[tv].equation = graph[v].equation;
 				tgraph[tv].index = counter++;
@@ -121,28 +123,20 @@ namespace Causalize{
 		
 		VectorCausalizationGraph::edge_iterator ei, ei_end; 
 		TarjanGraph::vertex_iterator v1, v1_end, v2, v2_end;
-		//~ for(boost::tie(v1, v1_end) = vertices(tgraph); v1 != v1_end; v1++){
-			//~ dprint('\n');
-			//~ dprint(tgraph[*v1].number);
-			//~ dprint(tgraph[*v1].equation);
-			//~ dprint(tgraph[*v1].unknown());
-			//~ dprint(tgraph[*v1].ip.Dom());
-			//~ dprint(tgraph[*v1].ip.Ran());
-		//~ } 
-		foreach_(VectorEdge ei, edges(graph)) {
+
+		foreach_(VectorEdge ei, edges(graph)) { // Creates Edges of the New Graph
 			for (auto ip : graph[ei].Pairs()){
 			
 				std::list<MDI> dom; dom.push_back(ip.Dom());
 				std::list<MDI> ran; ran.push_back(ip.Ran());
 				
 				for(boost::tie(v1, v1_end) = vertices(tgraph); v1 != v1_end; v1++){
-					if (tgraph[*v1].edge == ei){ // Borrar la parte del matching
+					if (tgraph[*v1].edge == ei){ 
 						dom = resta (dom, tgraph[*v1].ip.Dom());
 						ran = resta (ran, tgraph[*v1].ip.Ran());
 					} 
 				}
-				//~ dprint(size(ran));
-				//~ dprint(size(dom));
+
 				if ((ran.size()) != (dom.size())) { // Parche en el caso de 1 con todos
 					if ((ran.size()) == 0){
 						for (auto _ : dom){
@@ -188,17 +182,6 @@ namespace Causalize{
 									ips.insert(new_ip);
 									Label lab (ips);
 									add_edge (*v1, *v2, lab, tgraph).first;
-
-									//~ tgraph[te].dom = new_dom;
-									//~ tgraph[te].ran = new_ran;
-									//~ tgraph[te].Label = ips;
-									//~ tgraph[te].ip = new_ip;
-									
-									//~ dprint(tgraph[*v1].number);
-									//~ dprint(tgraph[*v2].number);
-									//~ dprint('\n');
-									//~ dprint(tgraph[te].dom);
-									//~ dprint(tgraph[te].ran);
 								}
 							}
 						}
@@ -209,6 +192,9 @@ namespace Causalize{
 		}
 	};
 
+
+  /// @brief These functions made a vectorial version of Tarjan Algorithm. 
+	/// It consists in a main function who calls a DFS and an auxiliar find function who returns all MDI's represented with a MDI and a Vertex.
 	// Busca el conjunto de nodos que representa el mdi y ese vértice. 
 	//   Devuelve un conjunto disjunto de partes. El booleano representa si solo buscamos elementos no visitados anteriormente.
 	MDIL VectorTarjan::find (TarjanVertex tv, MDI mdi, bool onlyNV){
@@ -247,11 +233,6 @@ namespace Causalize{
 	
 	void VectorTarjan::DFS(TarjanVertex tv, MDI mdi){
 		MDIL mdil = find (tv, mdi); // Función que se encarga de trabajar con los distintos conjuntos
-		//~ for (auto mdi : mdil){ // Marco como visitado
-			//~ VertexPart at = (std::make_pair (tv, mdi));
-
-		//~ }
-
 		for (auto mdi : mdil){ // DFS
 			VertexPart at = (std::make_pair (tv, mdi));
 			data[at].id = data[at].low = id;
@@ -263,7 +244,7 @@ namespace Causalize{
 				// Pasar pasar de Dom1 a Dom2, paso de Dom1 a Ran2 y de Ran2 a Dom2
 				MDI mdi2 = mdi.DomToRan(*tgraph[edge].Pairs().begin()).RanToDom(tgraph[tv2].ip); 
 				// --------------------------------------------
-				if (!(tgraph[tv2].mdi & mdi2)) continue; // TODO(karupayun): Falta analizar que hacer si estamos cayendo a un MDI que no figuraba anteriormente. Esta línea deberíamos borrarla.
+				if (!(tgraph[tv2].mdi & mdi2)) continue; // @karupayun: Trabajo Futuro: Falta analizar que hacer si estamos cayendo a un MDI que no figuraba anteriormente. Esta línea deberíamos borrarla.
 				MDIL mdil2 = find (tv2, (tgraph[tv2].mdi & mdi2).get(), false);
 				for (auto m : mdil2){
 					VertexPart to = std::make_pair(tv2,m);
@@ -277,7 +258,7 @@ namespace Causalize{
 				ConnectedComponent scc;
 				while (1){
 					VertexPart node = stack.top();
-					stack.pop(); // TODO(karupayun): Si cambió el conjunto esto no sería así. Pensar que hacer para trabajar ese caso difícil.
+					stack.pop(); // @karupayun: Trabajo Futuro: Si cambió el conjunto esto no sería así. Pensar que hacer para trabajar ese caso difícil.
 					data[node].onStack = false;
 					data[node].low = data[at].id;
 					scc.push_back(node);
@@ -310,20 +291,13 @@ namespace Causalize{
 				DFS(pair.first.first, pair.first.second);
 		}
 	
-		/* Si volvemos a un mismo vértice con otro rango del que salimos, lo vamos a consider como un caso no resuelto todavía. Si volvemos con el mismo, es trivial:
-			 * Hay N ciclos.
-			 * */
 	 	for (auto cc : strongly_connected_component){
-			//~ dprint("New");
 			CausalizeEquations ces;
-			for (auto vp:cc){ // vp = std::pair <TarjanVertex, MDI>
+			for (auto vp:cc){ 
 				MDI dom = vp.second;
 				MDI ran = dom.DomToRan (tgraph[vp.first].ip);
 				IndexPair ip (dom, ran, tgraph[vp.first].ip.GetOffset(), tgraph[vp.first].ip.GetUsage()); 
 				IndexPairSet ips = {ip};
-				//~ dprint(tgraph[vp.first].number);
-				//~ dprint(tgraph[vp.first].unknown());
-				//~ dprint(vp.second);
 				CausalizedVar ce;
 				ce.pairs = ips;
 				ce.equation = tgraph[vp.first].equation;

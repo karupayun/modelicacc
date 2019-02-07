@@ -210,7 +210,6 @@ namespace Causalize {
 
   MDI MDI::ApplyOffset(Offset offset) const {
     //TODO: It is mandatory to "Apply" or "Revert" usage before applying this method
-//    ERROR_UNLESS((int)offset.Size()==this->Dimension(),"Dimension error applying offset"); //TODO: Review this error
     if (this->Dimension()==0 || offset.Size()==0) {
       //nothing to apply
       return *this;
@@ -240,7 +239,6 @@ namespace Causalize {
   }
 
   MDI MDI::RevertUsage(Usage usage, MDI dom) const {
-//    ERROR_UNLESS(usage.Size()==dom.Dimension(), "Dimension error reverting usage");
     if (usage.Size()==0 || usage.isUnused() || dom.Dimension()==0) {
       return dom;
     }
@@ -307,7 +305,7 @@ namespace Causalize {
 
   bool MDI::Contains(const MDI &other) const {
     if (this->Dimension()!=other.Dimension())
-      return false; // @karupayun: Is this ok?? And for example a line inside a square?
+      return false; // @karupayun: Warning with this: A line can't be "inside" a square.
     else {
       for (int i=0; i<(int)this->intervals.size(); i++){
         if (!boost::icl::contains(this->intervals[i],other.intervals[i]))

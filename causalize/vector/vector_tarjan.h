@@ -27,10 +27,10 @@
 namespace Causalize {
   struct TarjanVertexProperty: VectorVertexProperty {
   /// @brief Represent the conexion into a Unknown and a Equation
-    IndexPair ip; // La forma de conexión
-	MDI mdi; // Equation
-	int number;
-	VectorEdge edge;
+    IndexPair ip; // About the conexion
+  	MDI mdi; // MDI of Equation
+  	int number;
+  	VectorEdge edge;
 	};
 	struct TarjanEdgeProperty: Label {
 		MDI dom;

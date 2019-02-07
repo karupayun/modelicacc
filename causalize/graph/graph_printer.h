@@ -36,7 +36,9 @@ using namespace boost::icl;
 
 namespace Causalize {
   template <class VertexProperty, class EdgeProperty> 
-  class GraphPrinter{
+ 	
+	// Printer for undirected Graphs.
+	class GraphPrinter{
 
     typedef boost::adjacency_list<boost::listS, boost::listS, boost::undirectedS, VertexProperty, EdgeProperty> Graph;
     typedef typename boost::adjacency_list<boost::listS, boost::listS, boost::undirectedS, VertexProperty, EdgeProperty>::vertex_descriptor Vertex;
@@ -65,11 +67,9 @@ namespace Causalize {
 		      MAKE_SPACE
 		      stri << "  rankdir=LR" << endl;
 		      stri << "  ratio=\"fill\"" << endl;
-		      //~ stri << "  edge[style=\"bold\"]" << endl;
 		      stri << "  node[shape=\"ellipse\"]" << endl;
 		      INSERT_TAB
 			      MAKE_SPACE
-            //stringstream colors2;
 			      for(Iterator it=equationDescriptors.begin(); it!=equationDescriptors.end(); it++){
 			        MAKE_SPACE
 #ifdef HAS_COUNT
@@ -134,6 +134,7 @@ namespace Causalize {
 		  std::list<Vertex> unknownDescriptors;
   };
 	
+	// Printer for directed Graphs.
 	template <class VertexProperty, class EdgeProperty> 
 	 class GraphPrinterDirected{
 
@@ -145,12 +146,7 @@ namespace Causalize {
 		  GraphPrinterDirected(const Graph &g): graph(g) {
       	typename Graph::vertex_iterator vi, vi_end;
 	      for(tie(vi, vi_end) = vertices(graph); vi!= vi_end; vi++){
-		      //~ if(graph[*vi].type == kVertexEquation){
       			equationDescriptors.push_back(*vi);
-						//~ std::cout << graph[*vi].equation << std::endl;
-      		//~ }else{
-      		  //~ unknownDescriptors.push_back(*vi);		
-    		  //~ }
     	  }
       };
 
@@ -165,70 +161,12 @@ namespace Causalize {
 		      MAKE_SPACE
 		      stri << "  rankdir=LR" << endl;
 		      stri << "  ratio=\"fill\"" << endl;
-		      //~ stri << "  edge[style=\"bold\"]" << endl;
 		      stri << "  node[shape=\"ellipse\"]" << endl;
-		      //~ stri << "  subgraph cluster0{" << endl;
-            //stringstream colors2;
-			      //~ for(Iterator it=equationDescriptors.begin(); it!=equationDescriptors.end(); it++){
-				      //~ Iterator aux = it;
-				      //~ aux++;
-				      //~ stri << "eq" << graph[*it].index;
-				      //~ if((aux) != equationDescriptors.end()){
-					      //~ stri << " -- ";		
-				      //~ }else{
-					      //~ stri << ";" << endl;		
-				      //~ }
-
-			      //~ }
 			      for(Iterator it=equationDescriptors.begin(); it!=equationDescriptors.end(); it++){
 			        MAKE_SPACE
 				      stri << "eq" << graph[*it].index << " [label=\"Eq. " << graph[*it].number << "\n" << graph[*it].mdi <<  "\"];" << endl;
-
             }
-            //stri << colors2.str();
-		      //~ DELETE_TAB
-		      //~ MAKE_SPACE
-		      //~ stri << "}" << endl;
-	      DELETE_TAB
-      
-      
-	      //~ INSERT_TAB
-		      //~ MAKE_SPACE
-		      //~ stri << "subgraph cluster1{" << endl;
-		      //~ INSERT_TAB
-			      //~ MAKE_SPACE
-			      //~ stri << "label = \"Unknowns\";" << endl;
-			      //~ MAKE_SPACE
-			      //~ stri << "edge [style=invis];" << endl;
-			      //~ MAKE_SPACE
-            //~ stringstream colors;
-			      //~ for(Iterator it=unknownDescriptors.begin(); it!=unknownDescriptors.end(); it++){
-				      //~ Iterator aux = it;
-				      //~ aux++;
-				      //~ stri << "var" << graph[*it].index;
-				      //~ if((aux) != unknownDescriptors.end()){
-					      //~ stri << " -- ";		
-				      //~ }else{
-					      //~ stri << ";" << endl;		
-				      //~ }
-			      //~ }
-			      //~ for(Iterator it=unknownDescriptors.begin(); it!=unknownDescriptors.end(); it++){
-		          //~ MAKE_SPACE
-//~ #ifdef HAS_COUNT
-				      //~ stri << "var" << graph[*it].index << " [ label = \"" << graph[*it].unknown() << "\nCount=" << graph[*it].count << "\"];" << endl;
-//~ #else
-				      //~ stri << "var" << graph[*it].index << " [ label = \"" << graph[*it].unknown() << "\"];" << endl;
-//~ #endif
-            //~ }
-		      //~ DELETE_TAB
-		      //~ MAKE_SPACE
-		      //~ stri << colors.str();
-		      //~ stri << "}" << endl;
-	      //~ DELETE_TAB
-      
-	      INSERT_TAB
 		      MAKE_SPACE
-		      //~ stri << "edge [constraint=false];" << endl;
 		      for(Iterator eq_it = equationDescriptors.begin(); eq_it != equationDescriptors.end(); eq_it++){
 			      EdgeIterator ei, ei_end;
 			      for(tie(ei, ei_end) = out_edges(*eq_it, graph); ei != ei_end; ei++){

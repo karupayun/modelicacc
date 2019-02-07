@@ -30,6 +30,7 @@
 
 namespace Causalize {
   /// @brief Vertex in the incidence graph can be either Equations or Unknowns. This type is used for distinguish between them
+	/// @brief NilVertex simbolize a dummy (fake) vertex and is used in the vectorized version of maximum matching.
   enum VertexType {kVertexEquation, kVertexUnknown, kNilVertex};
 
   struct Unknown {
